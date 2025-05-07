@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz With Puffington</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Comic Sans MS', cursive;
+      background-color: #ffe6f0;
+      text-align: center;
+    }
+    .container {
+      padding: 2rem;
+    }
+    .question {
+      margin: 2rem 0;
+      font-size: 1.2rem;
+      background: #fff0f5;
+      border-radius: 10px;
+      padding: 1rem;
+      display: none;
+    }
+    .question.active {
+      display: block;
+    }
+    .option {
+      display: block;
+      margin: 1rem;
+      padding: 0.5rem;
+      background: #ffccdd;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .option:hover {
+      background: #ff99bb;
+    }
+    #startBtn, #nextBtn, #giftBtn {
+      padding: 1rem 2rem;
+      background: #ff66a3;
+      border: none;
+      border-radius: 20px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    #giftBtn {
+      display: none;
+    }
+    #puffington {
+      width: 80px;
+      cursor: pointer;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10;
+    }
+    #puffSpeech {
+      position: fixed;
+      bottom: 120px;
+      right: 100px;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 2px solid #999;
+      display: none;
+      width: 200px;
+    }
+    #puffSpeech::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 20px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: #fff transparent transparent transparent;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="container">
+    <h2>You must pass >:D</h2>
+    <p>To obtain your special gift, pass this quiz I made just for you. Answer correctly! 😉</p>
+    <button id="startBtn">Start Quiz</button>
+
+    <div class="question" id="q1">
+      <p>1. What do you think is the most exact favorite Pokémon that you have?</p>
+      <div class="option" onclick="checkAnswer(this, 'A')">A. Pikachu</div>
+      <div class="option" onclick="checkAnswer(this, 'B')">B. Charizard</div>
+      <div class="option" onclick="checkAnswer(this, 'C')">C. Meowscarada</div>
+      <div class="option" onclick="checkAnswer(this, 'D')">D. Azumarill</div>
+    </div>
+
+    <div class="question" id="q2">
+      <p>2. What's the treasured gift I received ever since I met you at Sky?</p>
+      <div class="option" onclick="checkAnswer(this, 'A')">A. Seasonal candles</div>
+      <div class="option" onclick="checkAnswer(this, 'B')">B. Journey Pack</div>
+      <div class="option" onclick="checkAnswer(this, 'C')">C. Season Pass of the Blue Bird</div>
+      <div class="option" onclick="checkAnswer(this, 'D')">D. Little Prince pack</div>
+    </div>
+
+    <div class="question" id="q3">
+      <p>3. What do you think you loved most about me?</p>
+      <div class="option" onclick="checkAnswer(this, 'A')">A. Goofiness, Mindbroken, Out of control</div>
+      <div class="option" onclick="checkAnswer(this, 'B')">B. Blank, Empty, Less air</div>
+      <div class="option" onclick="checkAnswer(this, 'C')">C. Coldness, Straight through, Normal</div>
+      <div class="option" onclick="checkAnswer(this, 'D')">D. Everything that is caring, thoughtful and sincere</div>
+    </div>
+
+    <div class="question" id="q4">
+      <p>4. In one word what describes you the most?</p>
+      <div class="option" onclick="checkAnswer(this, 'A')">A. Cuteness overload</div>
+      <div class="option" onclick="checkAnswer(this, 'B')">B. Tsundere</div>
+      <div class="option" onclick="checkAnswer(this, 'C')">C. Sleepy</div>
+      <div class="option" onclick="checkAnswer(this, 'D')">D. Strong</div>
+    </div>
+
+    <div class="question" id="q5">
+      <p>5. Will you dearly cherish this very gift that I will give to you?</p>
+      <div class="option" onclick="checkAnswer(this, 'YES')">YES</div>
+    </div>
+
+    <h3 id="resultMsg"></h3>
+    <button id="giftBtn" onclick="goToGift()">Proceed to your Gift 🎁</button>
+  </div>
+
+  <img src="PUFFINGTON.png" id="puffington" onclick="revealHint()" alt="Puffington">
+  <div id="puffSpeech"></div>
+
+  <audio id="bgMusic" src="CRUSHER.mp3" loop></audio>
+  <audio id="victoryMusic" src="VICTORY.mp3"></audio>
+  <audio id="correctSound" src="CORRECT.mp3" preload="auto"></audio>
+  <audio id="wrongSound" src="WRONG.mp3"preload="auto"></audio>
+
+  <script>
+    const correctAnswers = ['A', 'C', 'D', 'A', 'YES'];
+    let currentQuestion = 0;
+    let canHint = true;
+
+    const hints = [
+      'The answer is A. Pikachu. I mean who else does not love Pikachu, we all do love the little electrifying mousy >:D',
+      'Definitely C. Season Pass of the Blue Bird',
+      'I am pretty sure that D. would be your exact answer, you want to connect each other more isnt that right fellow puffleball? :)',
+      'You want me to give you a hint? Alright buckaroo it is probably A.',
+      'Go ahead puffleball, the creator was surely happy to see you having fun in the game and I too was being honored to join you around helping you too!'
+    ];
+
+    document.getElementById("startBtn").onclick = () => {
+      document.getElementById("startBtn").style.display = "none";
+      document.getElementById("bgMusic").play();
+
+      document.getElementById("correctSound").load();
+      document.getElementById("wrongSound").load();
+
+      showQuestion(0);
+      // TODO: play looping background music
+    };
+
+    function showQuestion(index) {
+      document.querySelectorAll('.question').forEach(q => q.classList.remove('active'));
+      const qEl = document.getElementById(`q${index + 1}`);
+      if (qEl) qEl.classList.add('active');
+    }
+
+
+    function checkAnswer(el, answer) {
+  const correctSound = document.getElementById("correctSound");
+  const wrongSound = document.getElementById("wrongSound");
+
+  if (answer === correctAnswers[currentQuestion]) {
+    correctSound.pause();
+    correctSound.currentTime = 0;
+    correctSound.play();
+
+
+    currentQuestion++;
+    if (currentQuestion < correctAnswers.length) {
+      showQuestion(currentQuestion);
+    } else {
+      document.querySelectorAll('.question').forEach(q => q.classList.remove('active'));
+      document.getElementById('resultMsg').textContent =
+        'CONGRATULATIONS!\n\nWell done Aisha-san! you have completed the quiz way easily as I expected, definitely the smartest and the most brilliant that I have ever met hehe. I am so happy that you have made a lot of fun about the quiz that I gave you, now please go ahead press the button for your very special gift! I hope you do love this, I made it just for you really hehe';
+      document.getElementById('giftBtn').style.display = 'inline-block';
+      document.getElementById("bgMusic").pause();
+      document.getElementById("victoryMusic").play();
+    }
+  } else {
+    wrongSound.pause();
+    wrongSound.currentTime = 0;
+    wrongSound.play();
+    alert("Oops! Try again :D");
+  }
+}
+
+  window.onload = () => {
+  const speech = document.getElementById('puffSpeech');
+  speech.textContent = "Psst, hey are you trying to finish the quiz?\n\nI'm Puffington, just a cat that needs some good help with anything!\n\nI'm giving you extra hints anytime you wanted to know the correct answers so don't worry! Leave everything to me! ^^";
+  speech.style.display = 'block';
+  setTimeout(() => {
+    speech.style.display = 'none';
+    }, 5000);
+    };
+
+
+    function revealHint() {
+      if (!canHint) return;
+      const speech = document.getElementById('puffSpeech');
+      speech.textContent = hints[currentQuestion];
+      speech.style.display = 'block';
+      setTimeout(() => {
+        speech.style.display = 'none';
+        canHint = true;
+      }, 5000);
+      canHint = false;
+    }
+
+    function goToGift() {
+      window.location.href = "index.html"; // replace with actual URL
+    }
+  </script>
+</body>
+</html>
