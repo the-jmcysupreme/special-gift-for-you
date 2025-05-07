@@ -36,8 +36,8 @@ body {
 /* Envelope structure */
 .envelope-container {
   position: relative;
-  width: 700px;
-  height: 460px;
+  width: 600px;
+  height: 350px;
   cursor: pointer;
 }
 
